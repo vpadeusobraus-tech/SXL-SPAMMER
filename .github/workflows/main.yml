@@ -1,12 +1,11 @@
 name: Build SXL APK
-on: [push, workflow_dispatch] # Roda quando você salva ou manualmente
+on: [push, workflow_dispatch]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v2
 
       - name: Build with Buildozer
         uses: ArtemGr/buildozer-action@v1
@@ -14,8 +13,9 @@ jobs:
           command: buildozer android debug
           buildozer_version: master
 
-      - name: Upload APK Artifact
-        uses: actions/upload-artifact@v3
+      - name: Upload APK
+        uses: actions/upload-artifact@v2
         with:
-          name: SXL-Installer-APK
+          name: SXL-Installer
           path: bin/*.apk
+
