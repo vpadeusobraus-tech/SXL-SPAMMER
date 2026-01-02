@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SXL SPAMMER</title>
+    <style>
+        body { background-color: #000; color: #f00; font-family: 'Courier New', monospace; text-align: center; padding: 20px; }
+        h1 { font-size: 50px; margin: 0; text-shadow: 0 0 10px #f00; }
+        p { color: #C09304; margin-bottom: 20px; }
+        textarea, input { width: 90%; background: #0d0d0d; border: 1px solid #f00; color: #fff; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        button { width: 95%; padding: 15px; background: #600; color: #fff; border: 2px solid #f00; font-weight: bold; cursor: pointer; }
+        button:active { background: #222; }
+        #status { margin-top: 20px; font-size: 14px; color: #fff; }
+    </style>
+</head>
+<body>
+    <h1>SXL</h1>
+    <p>EGYPTIAN SPAMMER - MASSACRE MODE</p>
+
+    <textarea id="tokens" rows="4" placeholder="TOKENS (UM POR LINHA)"></textarea>
+    <textarea id="msgs" rows="4" placeholder="MENSAGENS (UMA POR LINHA)"></textarea>
+    <input type="text" id="channel" placeholder="ID DO CANAL">
+    <input type="number" id="delay" value="1.0" step="0.1" placeholder="DELAY (SEG)">
+
+    <button id="btn" onclick="toggleSpam()">INICIAR ATAQUE</button>
+
+    <div id="status">SISTEMA PRONTO... | ENVIADOS: 0</div>
+
+    <script>
+        let running = false;
+        let intervals = [];
+        let totalSent = 0;
+
+        async function sendMessage(token, channel, message) {
+            try {
+                const response = await fetch(`https://discord.com/api/v9/channels/${channel}/messages`, {
+                    method: 'POST',
+                    headers: { 'Authorization': token.trim(), 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: message })
+                });
+                if (response.ok) {
+                    totalSent++;
+                    document.getElementById('status').innerText = `ATAQUE ATIVO | ENVIADOS: ${totalSent}`;
+                }
+            } catch (e) {}
+        }
+
+        function toggleSpam() {
+            const btn = document.getElementById('btn');
+            if (!running) {
+                const tokenList = document.getElementById('tokens').value.split('\n').filter(t => t.trim() !== '');
+                const msgList = document.getElementById('msgs').value.split('\n').filter(m => m.trim() !== '');
+                const channelId = document.getElementById('channel').value;
+                const delay = parseFloat(document.getElementById('delay').value) * 1000;
+
+                if (!tokenList.length || !msgList.length || !channelId) return alert("Preencha tudo!");
+
+                running = true;
+                btn.innerText = "PARAR MASSACRE";
+                btn.style.background = "#222";
+
+                let msgIndex = 0;
+                tokenList.forEach(token => {
+                    const intv = setInterval(() => {
+                        sendMessage(token, channelId, msgList[msgIndex % msgList.length]);
+                        msgIndex++;
+                    }, delay);
+                    intervals.push(intv);
+                });
+            } else {
+                running = false;
+                btn.innerText = "INICIAR ATAQUE";
+                btn.style.background = "#600";
+                intervals.forEach(clearInterval);
+                intervals = [];
+                document.getElementById('status').innerText = "ATAQUE PARADO.";
+            }
+        }
+    </script>
+</body>
+</html>
