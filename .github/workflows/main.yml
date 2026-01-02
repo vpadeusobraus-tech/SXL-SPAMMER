@@ -1,33 +1,32 @@
-name: Build SXL APK
-on: [push, workflow_dispatch]
+[app]
+# Nome do app e pacote
+title = SXL Spammer
+package.name = sxlspammer
+package.domain = org.sxl
+source.dir = .
+source.include_exts = py,png,jpg,kv,json
+version = 0.1
 
-jobs:
-  build:
-    runs-on: ubuntu-22.04 # Versão estável para builds Android
+# Requisitos Python
+requirements = python3,kivy==2.2.1,requests,cython==0.29.33
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+# Permissões
+android.permissions = INTERNET
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+# Tela
+orientation = portrait
+android.api = 31
+android.minapi = 21
+android.ndk_api = 21
+android.bootstrap = sdl2
+android.archs = arm64-v8a,armeabi-v7a
+android.entrypoint = org.kivy.android.PythonActivity
+android.apptheme = "@android:style/Theme.NoTitleBar"
 
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
-          pip install --upgrade pip
-          pip install buildozer cython==0.29.33
+# Copiar bibliotecas externas
+android.copy_libs = 1
+android.enable_androidx = 1
 
-      - name: Build with Buildozer
-        run: |
-          yes | buildozer android debug
-        # O 'yes |' aceita automaticamente as licenças do Android SDK
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: SXL-Installer
-          path: bin/*.apk
+# Buildozer extras
+log_level = 2
+warn_on_root = 0
